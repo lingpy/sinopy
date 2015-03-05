@@ -11,7 +11,10 @@ __date__="2015-02-07"
 
 import lingpyd as lingpy
 import json
-from . import chinese_data as _cd
+try:
+    from . import chinese_data as _cd
+except:
+    import chinese_data as cd
 
 # we try to add as many distinct operations as possible here, including
 # automatic segmentizer for chinese syllables and other things
@@ -291,7 +294,7 @@ def big52gbk(chars):
 
 def clean_chinese_ipa(seq):
 
-    tones = list(zip('0123456','¹²³⁴⁵⁶'))
+    tones = list(zip('0123456','⁰¹²³⁴⁵⁶'))
 
     st = [('tsh', "ʦʰ"),
           ('ts', 'ʦ'),
@@ -314,30 +317,169 @@ def clean_chinese_ipa(seq):
 
     return seq
 
+def parse_chinese_morphemes(seq, context=False):
+    """
+    Parse a Chinese syllable and return its basic structure. 
+    """
+    
+    # get the tokens
+    tokens = lingpy.ipa2tokens(seq, merge_vowels=False)
+    
+    # get the sound classes according to the art-model
+    arts = lingpy.tokens2class(tokens, 'art')
+
+    # get the pro-string
+    prostring = lingpy.prosodic_string(tokens)
+
+    # parse the zip of tokens and arts
+    I,M,N,C,T = '','','','',''
+    
+    ini = False
+    med = False
+    nuc = False
+    cod = False
+    ton = False
+    
+    triples = [('?','?','?')]+list(zip(
+        tokens,arts,prostring))+[('?','?','?')]
+
+    for i in range(1,len(triples)-1): #enumerate(triples[1:-1]): #zip(tokens,arts,prostring):
+        
+        t,c,p = triples[i]
+        _t,_c,_p = triples[i-1]
+        t_,c_,p_ = triples[i+1]
+
+        # check for initial entry first
+        if p == 'A' and _t == '?':
+
+            # now, if we have a j-sound and a vowel follows, we go directly to
+            # medial environment
+            if t[0] in 'jɥw':
+                med = True
+                ini,nuc,cod,ton = False,False,False,False
+            else:
+                ini = True
+                med,nuc,doc,ton = False,False,False,False
+        
+        # check for initial vowel
+        elif p == 'X' and _t == '?':
+            if t[0] in 'iuy' and c_ == '7':
+                med = True
+                ini,nuc,cod,ton = False,False,False,False
+            else:
+                nuc = True
+                ini,med,cod,ton = False,False,False,False
+
+        # check for medial after initial
+        elif p == 'C':
+            med = True
+            ini,nuc,cod,ton = False,False,False,False
+
+        # check for vowel medial 
+        elif p == 'X' and p_ == 'Y':
+            
+            # if we have a medial vowel, we classify it as medial
+            if t in 'iyu':
+                med = True
+                ini,nuc,cod,ton = False,False,False,False
+            else:
+                nuc = True
+                ini,med,cod,ton = False,False,False,False
+
+        # check for vowel without medial
+        elif p == 'X' or p == 'Y':
+            if p_ in 'LTY' or p_ == '?':
+                nuc = True
+                ini,med,cod,ton = False,False,False,False
+            elif p == 'Y':
+                nuc = True
+                ini,med,cod,ton = 4 * [False]
+            else:
+                cod = True
+                ini,med,nuc,ton = 4 * [False]
+        
+        # check for consonant
+        elif p == 'L':
+            cod = True
+            ini,med,nuc,ton = 4 * [False]
+
+        # check for tone
+        elif p == 'T':
+            ton = True
+            ini,med,nuc,cod = 4 * [False]
+
+        if ini:
+            I += t
+        elif med:
+            M += t
+        elif nuc:
+            N += t
+        elif cod:
+            C += t
+        else:
+            T += t
+    
+    # bad conversion for output, but makes what it is supposed to do
+    out = [I,M,N,C,T]
+    tf = lambda x: x if x else '-'
+    out = [tf(x) for x in out]
+    
+    # transform tones to normal letters
+    tones = dict(zip('¹²³⁴⁵⁶⁰','1234560'))
+
+    # now, if context is wanted, we'll yield that
+    ic = '1' if [x for x in I if x in 'bdgmnŋȵɳɴ'] else '0'
+    mc = '1' if [m for m in M+N if m in 'ijyɥ'] else '0'
+    cc = '1' if C in 'ptkʔ' else '0'
+    tc = ''.join([tones[x] for x in T])
+
+    IC = '/'.join(['I',ic,mc,cc,tc]) if I else ''
+    MC = '/'.join(['M',ic,mc,cc,tc]) if M else ''
+    NC = '/'.join(['N',ic,mc,cc,tc]) if N else ''
+    CC = '/'.join(['C',ic,mc,cc,tc]) if C else ''
+    TC = '/'.join(['T',ic,mc,cc,tc]) if T else ''
+
+    if context:
+        return out, [x for x in [IC,MC,NC,CC,TC] if x]
+    return out
+
 
 if __name__ == '__main__':
-
-    td = sorted(set([(a,b) for a,b in lingpy.csv2list('test_data')]))
     
-    good = 0
-    failed_rime = 0
-    diff = 0
-    nomch = 0
+    wl = lingpy.Wordlist('yinku.qlc')
+    wl.add_entries('alignment', 'ipa', parse_chinese_morphemes)
+    wl.add_entries('context', 'ipa', lambda x: parse_chinese_morphemes(x,
+        context=True)[1])
+    wl.output('tsv', filename='yinku')
 
-    for char,chars in td:
-        try:
-            fanqie = chars[-1] + chars[-2]
-            baxter = '//'.join(chars2baxter(char))
-            mch = fanqie2mch(fanqie)
-        
-            if mch not in baxter:
-                print(char, baxter,mch, fanqie2mch(fanqie, debug=True), fanqie)
-                diff += 1
-        except ValueError:
-            print (chars, chars2baxter(fanqie[0]),
-                    chars2baxter(fanqie[1]),fanqie)
+    #wl = lingpy.Wordlist('yinku.qlc')
+    #for k in wl:
+    #    ipa = wl[k,'ipa']
+    #    morpheme,context = parse_chinese_morphemes(ipa,context=True)
 
-    print(diff)
+    #    print(k,'\t','{0:10}'.format(ipa),'\t',' '.join(['{0:6}'.format(x) for x in
+    #        morpheme]),'\t',' '.join(['{0:6}'.format(x) for x in context]))
+    #td = sorted(set([(a,b) for a,b in lingpy.csv2list('test_data')]))
+    #
+    #good = 0
+    #failed_rime = 0
+    #diff = 0
+    #nomch = 0
+
+    #for char,chars in td:
+    #    try:
+    #        fanqie = chars[-1] + chars[-2]
+    #        baxter = '//'.join(chars2baxter(char))
+    #        mch = fanqie2mch(fanqie)
+    #    
+    #        if mch not in baxter:
+    #            print(char, baxter,mch, fanqie2mch(fanqie, debug=True), fanqie)
+    #            diff += 1
+    #    except ValueError:
+    #        print (chars, chars2baxter(fanqie[0]),
+    #                chars2baxter(fanqie[1]),fanqie)
+
+    #print(diff)
     #for char,chars in td:
     #    
     #    

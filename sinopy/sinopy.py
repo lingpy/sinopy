@@ -127,12 +127,14 @@ def chars2gloss(chars):
     return out
 
 
-def sixtuple2baxter(chars, debug=False):
+def sixtuple2baxter(chars, debug=False, rhymebook=None):
     """ 
     Convert the classicial six-tuple representation of MCH readings into IPA
     (or Baxter's ASCII system). 
     This function is more or less implemented in MiddleChinese.
     """
+    if not rhymebook:
+        rhymebook = _cd.GY
 
     if len(chars) != 6:
         raise ValueError('chars should be a sixtuple')
@@ -144,15 +146,21 @@ def sixtuple2baxter(chars, debug=False):
     she,hu,deng,diao,yun,sheng = list(chars) 
     
     # try converting the values to mch representations
-    initial = _cd.GY['sheng'].get(sheng)
-    final = _cd.GY['yun'].get(yun)
-    tone = _cd.GY['diao'].get(diao)
-    medial = _cd.GY['hu'].get(hu)
-    division = _cd.GY['deng'].get(deng)
-    
+    initial = rhymebook['sheng'].get(sheng, '?')
+    final = rhymebook['yun'].get(yun, '?')
+    tone = rhymebook['diao'].get(diao, '?')
+    medial = rhymebook['hu'].get(hu, '?')
+    division = rhymebook['deng'].get(deng, '?')
+        
     # debug is for cross-checking
     if debug:
-        return [initial,medial,division,final,tone]
+        return [(sheng, initial), (hu, medial), (deng, division),(yun, final),
+                (diao, tone)]
+
+    # check and raise error if things are not handled
+    if "?" in [initial, final, tone, medial, division]:
+        raise ValueError("Unrecognized elements in {0}.".format(
+            ' '.join([initial, final, tone, medial, division])))
 
     # treat the final if division is 3 and they start with 'j', note that so
     # far, we don't handle chongnius
@@ -289,7 +297,7 @@ def baxter2ipa(mch):
     elif out[-1] not in 'XHP':
         out += 'P'
         
-    for s,t in _cd.GY['ipa']: #XXX replace possibly by another funciton
+    for s,t in _cd.GY['ipa']: 
         out = out.replace(s,t)
     return out
 

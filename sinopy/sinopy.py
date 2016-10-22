@@ -31,6 +31,19 @@ def pinyin(char, variant='mandarin', sep=' ', out='tones'):
 
     return out_char
 
+def character_from_structure(motivation):
+    """Find a character for a given structure."""
+    assert len(motivation) == 3
+
+    _c = {
+            "+": "⿰",
+            "-": "⿱",
+            "手": "扌",
+            }
+    structure = ''.join([_c.get(x, x) for x in motivation])
+    print(structure)
+    return _cd.IDS.get(structure, '?')
+
 def parse_baxter(reading):
     """
     Parse a Baxter string and render it with all its contents, namely

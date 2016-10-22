@@ -31,6 +31,20 @@ def get_unihan():
             unihan[key][line[1][1:].lower()] = line[2]
     return unihan
 
+
+def get_ids():
+    _ids = lingpy.csv2list(_path('ids.txt'))
+    ids = {}
+    for line in _ids:
+        char = line[1]
+        motivations = line[2:]
+        for motivation in motivations:
+            if '[' in motivation:
+                motivation = motivation[:motivation.index('[')]
+            ids[motivation] = char
+    return ids
+
+
 def get_tls():
     return json.load(codecs.open(_path('tls.json'), 'r', 'utf-8'))
 
@@ -379,4 +393,4 @@ tone_converter = dict(zip(
     list('áéíóúýāēīōūȳàèìòùỳǎěǐǒǔ'),
     list('aeiouyaeiouyaeiouyaeiou')
     ))
-
+IDS = load('ids', get_ids)

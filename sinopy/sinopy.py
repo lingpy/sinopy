@@ -1,14 +1,23 @@
 import lingpy
 import json
 from sinopy import data as _cd
+import re
+
+_art = lingpy.Model(
+        _cd._path('models', 'arti')) 
+lingpy.settings.rcParams['art'] = _art
 
 def is_chinese(name):
     """
     Taken from http://stackoverflow.com/questions/16441633/python-2-7-test-if-characters-in-a-string-are-all-chinese-characters
     """
+    if not name:
+        return False
     for ch in name:
-        if ord(ch) < 0x4e00 or ord(ch) > 0x9fff:
-            return False
+        ordch = ord(ch)
+        if not (0x3400 <= ordch <= 0x9fff) and not (0x20000 <= ordch <= 0x2ceaf) \
+                and not (0xf900 <= ordch <= ordch) and not (0x2f800 <= ordch <= 0x2fa1f): 
+                return False
     return True
 
 def pinyin(char, variant='mandarin', sep=' ', out='tones'):
@@ -38,10 +47,15 @@ def character_from_structure(motivation):
     _c = {
             "+": "⿰",
             "-": "⿱",
+            '>': "⿱",
             "手": "扌",
+            "人": "亻",
+            "刀": "刂",
+            "丝": "糹",
+            "水": "氵",
+            "0": "⿴",
             }
     structure = ''.join([_c.get(x, x) for x in motivation])
-    print(structure)
     return _cd.IDS.get(structure, '?')
 
 def parse_baxter(reading):
@@ -341,7 +355,7 @@ def big52gbk(chars):
 
 def clean_chinese_ipa(seq):
 
-    tones = list(zip('0123456','⁰¹²³⁴⁵⁶'))
+    tones = list(zip('0123456789','⁰¹²³⁴⁵⁶⁷⁸⁹'))
 
     st = [('tsh', "ʦʰ"),
           ('ts', 'ʦ'),
@@ -376,10 +390,10 @@ def parse_chinese_morphemes(seq, context=False):
         tokens = lingpy.ipa2tokens(seq, merge_vowels=False)
     
     # get the sound classes according to the art-model
-    arts = lingpy.tokens2class(tokens, 'art')
+    arts = [int(x) for x in lingpy.tokens2class(tokens, _art)]
 
     # get the pro-string
-    prostring = lingpy.prosodic_string(tokens)
+    prostring = lingpy.prosodic_string(arts)
 
     # parse the zip of tokens and arts
     I,M,N,C,T = '','','','',''
@@ -475,13 +489,13 @@ def parse_chinese_morphemes(seq, context=False):
     out = [tf(x) for x in out]
     
     # transform tones to normal letters
-    tones = dict(zip('¹²³⁴⁵⁶⁰','1234560'))
+    tones = dict(zip('¹²³⁴⁵⁶⁷⁸⁹⁰₁₂₃₄₅₆₇₈₉₀','1234567890123456789'))
 
     # now, if context is wanted, we'll yield that
     ic = '1' if [x for x in I if x in 'bdgmnŋȵɳɴ'] else '0'
     mc = '1' if [m for m in M+N if m in 'ijyɥ'] else '0'
     cc = '1' if C in 'ptkʔ' else '0'
-    tc = ''.join([tones[x] for x in T])
+    tc = ''.join([tones.get(x, x) for x in T])
 
     IC = '/'.join(['I',ic,mc,cc,tc]) if I else ''
     MC = '/'.join(['M',ic,mc,cc,tc]) if M else ''

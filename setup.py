@@ -1,5 +1,5 @@
-import distribute_setup
-distribute_setup.use_setuptools()
+#import distribute_setup
+#distribute_setup.use_setuptools()
 
 from setuptools import setup, find_packages,Extension
 # setup package name etc as a default

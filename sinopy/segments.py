@@ -1,7 +1,8 @@
 import lingpy
-from lingpy.sequence.sound_classes import tokens2morphemes, codepoint
+from lingpy.sequence.sound_classes import tokens2morphemes, codepoint, tokens2class
 from sinopy.sinopy import parse_chinese_morphemes
 from collections import defaultdict
+from lingpy import log
 
 def strip_chars(chars, string):
     return ''.join([c for c in string if c not in chars])
@@ -10,6 +11,14 @@ def get_structure(word, sep='+', zipped=False, semi_diacritics='hsʃʂʒʐzθɕ�
     if not isinstance(word, (list, tuple)):
         word = lingpy.ipa2tokens(word, expand_nasals=True, merge_vowels=False,
                 semi_diacritics=semi_diacritics)
+
+    # check for unknown chars
+    try: 
+        tokens2class(word, 'cv')
+    except ValueError:
+        print('problem with {0}'.format(''.join(word)))
+        return []
+
     # get the morphemes
     if sep in word:
         words = tokens2morphemes(word)

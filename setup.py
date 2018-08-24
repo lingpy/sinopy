@@ -4,17 +4,24 @@
 from setuptools import setup, find_packages,Extension
 # setup package name etc as a default
 pkgname = 'sinopy'
-pkg_dir = {'':'.'}
-pkg_location = '.'
+
 
 setup(
         name=pkgname,
-        version='0.2',
-        packages=find_packages(pkg_location),
-        package_dir=pkg_dir,
-        install_requires=['lingpy', 'clldutils'],
+        version='0.3.0',
+        packages=find_packages(where='src'),
+        package_dir={'': 'src'},
+        zip_safe=False,
+        license="GPL",
+        include_package_data=True,
+        install_requires=['lingpy'],
+        url='https://github.com/lingpy/sinopy',
+        long_description=open('README.md').read(),
+        long_description_content_type='text/markdown',
         entry_points={
             'console_scripts': ['sinopy=sinopy.cli:main'],
         },
-        author='Johann-Mattis List'
+        author='Johann-Mattis List',
+        author_email='list@shh.mpg.de',
+        keywords='Chinese linguistics, historical linguistics, computer-assisted language comparison'
         )

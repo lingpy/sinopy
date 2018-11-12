@@ -14,19 +14,19 @@ def get_structure(word, sep='+', zipped=False, semi_diacritics='hsʃʂʒʐzθɕ�
 
     # check for unknown chars
     try: 
-        tokens2class(word, 'cv')
+        tokens2class(word, 'cv', cldf=True)
     except ValueError:
         print('problem with {0}'.format(''.join(word)))
         return []
 
     # get the morphemes
     if sep in word:
-        words = tokens2morphemes(word)
+        words = tokens2morphemes(word, cldf=True)
         morphemes = []
         for w in words:
             morphemes += tokens2morphemes(w, sep=sep)
     else:
-        morphemes = tokens2morphemes(word)
+        morphemes = tokens2morphemes(word, cldf=True)
     # get the basic structure for each morpheme
     for morpheme in morphemes:
         segments = parse_chinese_morphemes(morpheme)

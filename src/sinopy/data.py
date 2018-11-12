@@ -5,6 +5,7 @@ import os
 import pickle
 import codecs
 from collections import defaultdict
+from segments import tokenizer
 
 _path = lambda *x: os.path.join(
         os.path.dirname(sinopy.__file__),
@@ -331,24 +332,24 @@ def get_gy():
 		'四':'4'
                 },
     "ipa" : [
-        ("tsrh","ʦʰ"),
-        ("tsyh","ʨʰ"),
-        ("tsy","ʨ"),
-        ("dzy","ʥ"),
+        ("tsrh","tsʰ"),
+        ("tsyh","tɕʰ"),
+        ("tsy","tɕ"),
+        ("dzy","dʑ"),
         ("trh","ʈʰ"),
-        ("tsh","ʦʰ"),
-        ("tsr","t͡ʂ"),
-        ("dzr","d͡ʐ"),
+        ("tsh","tsʰ"),
+        ("tsr","ʈʂ"),
+        ("dzr","ɖʐ"),
         ("jw","y"),
         ("ae","æ"),
         ("ea","ɛ"),
         ("ph","pʰ"),
         ("th","tʰ"),
         ("tr","ʈ"),
-        ("ts","ʦ"),
+        ("ts","ts"),
         ("dr","ɖ"),
         ("nr","ɳ"),
-        ("dz","ʣ"),
+        ("dz","dz"),
         ("sr","ʂ"),
         ("zr","ʐ"),
         ("kh","kʰ"),
@@ -394,3 +395,4 @@ tone_converter = dict(zip(
     list('aeiouyaeiouyaeiouyaeiou')
     ))
 IDS = load('ids', get_ids)
+cp = tokenizer.Tokenizer(_path('chinese.tsv'))

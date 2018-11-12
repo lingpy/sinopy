@@ -9,6 +9,11 @@ lingpy.settings.rcParams['art'] = _art
 
 def is_chinese(name):
     """
+    Check if a symbol is a Chinese character.
+
+    Note
+    ----
+
     Taken from http://stackoverflow.com/questions/16441633/python-2-7-test-if-characters-in-a-string-are-all-chinese-characters
     """
     if not name:
@@ -141,6 +146,7 @@ def chars2baxter(chars):
         out += [','.join(tmp)]
     return out
 
+
 def chars2gloss(chars):
     """
     Get the TLS basic gloss for a characters.
@@ -240,12 +246,14 @@ def sixtuple2baxter(chars, debug=False, rhymebook=None):
     # put everything together
     return [initial,medial,final,tone]
   
+
 def normalize_pinyin(pinyin):
     """
     Normalize pinyin representation by replacing numbers with diaecritics.
     """
     
     pass
+
 
 def analyze_sequence(ipa):
     """
@@ -263,6 +271,7 @@ def analyze_sequence(ipa):
         D = {}
 
         pass
+
 
 def fanqie2mch(fanqie, debug=False):
     """
@@ -362,18 +371,20 @@ def big52gbk(chars):
     return out
 
 
-def clean_chinese_ipa(seq):
+def clean_chinese_ipa(seq, column='IPA'):
 
     tones = list(zip('0123456789','⁰¹²³⁴⁵⁶⁷⁸⁹'))
 
-    st = [('tsh', "ʦʰ"),
-          ('ts', 'ʦ'),
+    return _cd.cp(seq, column=column)
+
+    st = [('tsh', "tsʰ"),
+          ('ts', 'ts'),
           ("th","tʰ"),
           ("kh","kʰ"),
           ("ph","pʰ"),
-          ("pfh","p͡fʰ"),
-          ("pf","p͡f"),
-          ('dz', "ʣ")
+          ("pfh","pfʰ"),
+          ("pf","pf"),
+          ('dz', "dz")
           ]
     st = sorted(st, key=lambda x: len(x[0]), reverse=True)
 
@@ -400,7 +411,7 @@ def parse_chinese_morphemes(seq, context=False):
         tokens = lingpy.ipa2tokens(seq, merge_vowels=False)
     
     # get the sound classes according to the art-model
-    arts = [int(x) for x in lingpy.tokens2class(tokens, _art)]
+    arts = [int(x) for x in lingpy.tokens2class(tokens, _art, cldf=True)]
 
     # get the pro-string
     prostring = lingpy.prosodic_string(arts)

@@ -29,7 +29,13 @@ def get_structure(word, sep='+', zipped=False, semi_diacritics='hsʃʂʒʐzθɕ�
         morphemes = tokens2morphemes(word, cldf=True)
     # get the basic structure for each morpheme
     for morpheme in morphemes:
-        segments = parse_chinese_morphemes(morpheme)
+        try:
+            segments = parse_chinese_morphemes(morpheme)
+        except:
+            if not zipped:
+                yield ['NULL']
+            else:
+                yield ([('NULL', 'NULL')], morpheme)
         if not zipped:
             yield [x for x, y in zip('imnct', segments) if y != '-']
         else:
@@ -45,7 +51,7 @@ def get_structure_profile(wordlist, column='ipa', text=False,
     
     for idx, lang, segments in lingpy.iter_rows(
             wordlist, 'doculect', column):
-        if debug: print(idx, language, segments)
+        if debug: print(idx, lang, segments)
         if not language or language == lang:
             for structure, morpheme in get_structure(
                     modify(segments), zipped=True, 

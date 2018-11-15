@@ -11,7 +11,13 @@ def main():
         py = sinopy.pinyin(argv[argv.index('pinyin')+1])
         print(py)
     if 'profile' in argv:
-        wl = Wordlist(argv[argv.index('profile')+1])
+        if '--cldf' in argv:
+            wl = Wordlist.from_cldf(argv[argv.index('profile')+1],
+                col='language_id', row='parameter_id'
+                )
+            wl.add_entries('doculect', 'language_name', lambda x: x)
+        else:
+            wl = Wordlist(argv[argv.index('profile')+1])
         column = 'ipa'
         language = None
         filename = 'orthography.tsv'

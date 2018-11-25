@@ -74,13 +74,12 @@ But we have also a range of functions for handling Middle Chinese and related pr
 >>> parse_baxter('ngaH')
 ('ng', '', 'a', 'H')
 ```
-So this function will read in a Middle Chinese string (as encoded in the system of Baxter 1992) and return its main constituents (initial, medial, final, and tone).
 
-```
+So this function will read in a Middle Chinese string (as encoded in the system of Baxter 1992) and return its main constituents (initial, medial, final, and tone).
 
 But we can also directly convert a character to its Middle Chinese reading:
 
-```
+```python
 >>> chars2baxter(char)
 ['ngaX']
 ```

@@ -50,7 +50,7 @@ linguistic data.
 
 But let's just look at a couple of examples:
 
-```
+```python
 >>> from sinopy import *
 >>> char = "我"
 >>> pinyin(char, variant="mandarin")
@@ -59,7 +59,7 @@ wǒ
 
 So obviously, we can convert characters to Pīnyīn.
 
-```
+```python
 >>> is_chinese(char)
 True
 >>> is_chinese('b')
@@ -70,7 +70,7 @@ So the library also checks if a character belongs to Chinese Unicode range.
 
 But we have also a range of functions for handling Middle Chinese and related problems. For example the following:
 
-```
+```python
 >>> parse_baxter('ngaH')
 ('ng', '', 'a', 'H')
 ```
@@ -87,32 +87,32 @@ But we can also directly convert a character to its Middle Chinese reading:
 
 Or we can retrieve a basic gloss.
 
-```
+```python
 >>> chars2gloss(char)
 ['our, us, i, me, my, we']
 ```
 
 A rather complex function is the `sixtuple2baxter` function, which reads in the classical six-character descriptions of the Middle Chinese reading of a given character and yields the Middle Chinese value following Baxter's system. You find a lot of sixtuple readings in the DOC database (published with the [Tower of Babel project](http://starling.rinet.ru/cgi-bin/response.cgi?root=config&morpho=0&basename=\data\china\doc&first=1)).
 
-```
->>> sixtuple2baxter('蟹開一上海泥')                                                                                                                 
+```python
+>>> sixtuple2baxter('蟹開一上海泥')                            
 ['n', '', 'oj', 'X']
->>> chars2baxter('乃')                                                                                                                              
+>>> chars2baxter('乃')                 
 ['nojX']
 ```
 
 You can also directly try to retrieve the MC reading from passing two fǎnqiè characters, for example:
 
-```
->>> fanqie2mch('海泥')    
+```python
+>>> fanqie2mch('海泥')
 'xej'
->>> fanqie2mch('泥海')        
+>>> fanqie2mch('泥海')
 'nojX'
 ```
 
 And if you don't like Baxter's MCH transcriptions, you can simply turn it to IPA:
 
-```
+```python
 >>> baxter2ipa('nojX')
 noj²
 >>> baxter2ipa('tsyang')
@@ -121,9 +121,9 @@ noj²
 
 As a final important function, consider the parser for morphemes:
 
-```
+```python
 >>> parse_chinese_morphemes('ʨaŋ¹')
-['ʨ', '-', 'a', 'ŋ', '¹'] 
+['ʨ', '-', 'a', 'ŋ', '¹']
 ```
 
 The quintuple that he method returns splits the sequence into its five main constituents, initial, medial, nucleus, coda, and tone. 

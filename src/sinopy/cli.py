@@ -5,7 +5,7 @@ from lingpy import Wordlist
 def main():
     
     debug=False
-    if 'debug' in argv:
+    if 'debug' in argv or '--debug' in argv:
         debug=True
     if 'pinyin' in argv:
         py = sinopy.pinyin(argv[argv.index('pinyin')+1])

@@ -414,7 +414,7 @@ def parse_chinese_morphemes(seq, context=False):
     arts = [int(x) for x in lingpy.tokens2class(tokens, _art, cldf=True)]
 
     # get the pro-string
-    prostring = lingpy.prosodic_string(arts)
+    prostring = lingpy.prosodic_string(arts, cldf=True)
 
     # parse the zip of tokens and arts
     I,M,N,C,T = '','','','',''

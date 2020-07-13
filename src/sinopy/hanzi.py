@@ -2,7 +2,7 @@
 Utilities for operations with Chinese characters
 """
 from sinopy.data import *
-from sinopy.sinopy import is_chinese
+from sinopy.util import is_chinese
 from lingpy.sequence.ngrams import get_all_ngrams
 from lingpy.sequence.ngrams import trigrams
 from sinopy.util import is_chinese

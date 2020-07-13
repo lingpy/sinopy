@@ -3,7 +3,7 @@ import json
 from sinopy import data as sdata
 from sinopy.util import is_chinese
 import re
-from sinopy.characters import gbk2big5
+from sinopy.hanzi import gbk2big5
 
 def parse_baxter(reading):
     """

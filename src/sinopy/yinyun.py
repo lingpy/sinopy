@@ -64,7 +64,7 @@ def parse_baxter(reading):
     if final[0] in 'u' and 'w' not in medial:
         medial = 'w' + medial
 
-    return initial,medial,final,tone
+    return initial, medial, final, tone
 
 
 def sixtuple2baxter(chars, debug=False, rhymebook=None):

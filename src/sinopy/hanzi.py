@@ -94,6 +94,7 @@ def character_from_structure(motivation):
     structure = ''.join([_c.get(x, x) for x in motivation])
     return IDS.get(structure, '?')
 
+
 def gbk2big5(chars):
     """
     Convert from gbk format to big5 representation of chars.
